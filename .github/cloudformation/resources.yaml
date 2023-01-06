@@ -4,17 +4,16 @@ Description: Serverless HTTP API, Website, with Auth and a DB
 Parameters:
   ParamLambdaBucketUri:
     Type: String
-  ParamApiGatewayName:
+  ParamProjectPrefix:
     Type: String
-  ParamLambdaFunctionName:
+  ParamProjectName:
     Type: String
-    AllowedPattern: '[a-zA-Z0-9]+[a-zA-Z0-9-]+[a-zA-Z0-9]+'
 
 Resources:
   ApiGateway:
     Type: AWS::ApiGatewayV2::Api
     Properties:
-      Name: !Ref ParamApiGatewayName
+      Name: !Sub '${ParamProjectPrefix}-${ParamProjectName}-api'
       Description: API Gateway
       ProtocolType: HTTP
 
@@ -58,7 +57,7 @@ Resources:
         S3Bucket: !Ref ParamLambdaBucketUri
         S3Key: lambda.zip
       Description: Lambda function
-      FunctionName: !Ref ParamLambdaFunctionName
+      FunctionName:  !Sub '${ParamProjectPrefix}-${ParamProjectName}-server'
       Role: !GetAtt LambdaIAMRole.Arn
       Handler: "main"
       Runtime: "go1.x"
@@ -88,15 +87,36 @@ Resources:
                   - logs:PutLogEvents
                 Effect: Allow
                 Resource:
-                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${ParamLambdaFunctionName}:*
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${ParamProjectPrefix}-${ParamProjectName}-server:*
           PolicyName: lambda
 
   LambdaLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/lambda/${ParamLambdaFunctionName}
+      LogGroupName: !Sub /aws/lambda/${ParamProjectPrefix}-${ParamProjectName}-server
       RetentionInDays: 7
+
+  S3BucketWebAssets:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ParamProjectPrefix}-${ParamProjectName}-web-assets'
+
+  S3BucketWebAssetsPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - s3:GetObject
+            Resource: !Sub 'arn:aws:s3:::${S3BucketWebAssets}/*'
+      Bucket: !Ref S3BucketWebAssets
 
 Outputs:
   ApiGatewayUrl:
     Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com
+  S3BucketWebAssets:
+    Value: !Sub '${ParamProjectPrefix}-${ParamProjectName}-web-assets'
+  S3WebsiteUrl:
+    Value: !Sub 'https://${ParamProjectPrefix}-${ParamProjectName}-web-assets.s3.${AWS::Region}.amazonaws.com'

@@ -27,7 +27,7 @@ jobs:
     - name: build and release
       run: |
         set -e
-        bash ./.github/scripts/main.bash
+        node ./.github/scripts/cmd/deploy.mjs
       env:
         CI: true
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
