@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const contents = fs.readFileSync(path.join(__dirname, '../../cloudformation/resources.yaml'), { encoding: 'utf8' })
-console.log(YAML.parse(contents))
+console.log(YAML.parse(contents, { customTags: []}))
 
 // import { Directories } from '../platform/directories.mjs'
 // import { shell } from '../platform/shell.mjs'
