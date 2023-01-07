@@ -94,6 +94,8 @@ fi
 # AWS_REGION=ap-southeast-2
 
 mkdir $FOLDER_NAME
+
+echo Downloading...
 wget -qO- https://github.com/alshdavid/template-serverless-service/releases/latest/download/template.tar.gz | tar -xzv -C "$PWD/$FOLDER_NAME" 
 
 cd "$PWD/$FOLDER_NAME"
@@ -103,3 +105,5 @@ for i in `find * .*` ; do
   sed -i -- "s/%%PROJECT_NAME%%/${PROJECT_NAME}/g" $i &> /dev/null
   sed -i -- "s/%%AWS_REGION%%/${AWS_REGION}/g" $i &> /dev/null
 done
+
+echo Complete
