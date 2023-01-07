@@ -99,8 +99,7 @@ wget -qO- https://github.com/alshdavid/template-serverless-service/releases/late
 cd "$PWD/$FOLDER_NAME"
 
 for i in `find * .*` ; do
-echo $i
-  sed -i -- "s/%%PROJECT_PREFIX%%/${PROJECT_PREFIX}/g" $i; 
-  sed -i -- "s/%%PROJECT_NAME%%/${PROJECT_NAME}/g" $i; 
-  sed -i -- "s/%%AWS_REGION%%/${AWS_REGION}/g" $i; 
+  sed -i -- "s/%%PROJECT_PREFIX%%/${PROJECT_PREFIX}/g" $i &> /dev/null
+  sed -i -- "s/%%PROJECT_NAME%%/${PROJECT_NAME}/g" $i &> /dev/null
+  sed -i -- "s/%%AWS_REGION%%/${AWS_REGION}/g" $i &> /dev/null
 done
