@@ -96,6 +96,8 @@ fi
 mkdir $FOLDER_NAME
 wget -qO- https://github.com/alshdavid/template-serverless-service/releases/latest/download/template.tar.gz | tar -xzv -C "$PWD/$FOLDER_NAME" 
 
+cd "$PWD/$FOLDER_NAME"
+
 for i in `find * .*` ; do
 echo $i
   sed -i -- "s/alshdavid/${PROJECT_PREFIX}/g" $i; 
