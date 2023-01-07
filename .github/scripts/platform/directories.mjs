@@ -1,8 +1,7 @@
 import * as path from "node:path";
-import { dirname } from "path";
 import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDirectory = path.resolve(__dirname, "..", "..", "..");
 
 export const Directories = {
