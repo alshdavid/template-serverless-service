@@ -24,7 +24,13 @@ export class Cloudformation {
   static describeStack(
     /**@type {string}*/ stackName,
   ) {
-    const resultStr = shell(`aws cloudformation describe-stacks --stack-name ${stackName}`, { stdio: 'pipe' })
+    const resultStr = shell(`aws cloudformation describe-stacks --stack-name ${stackName} --output json`, { 
+      stdio: 'pipe',
+      env: {
+        ...process.env,
+        AWS_PAGER: '',
+      }
+    })
     const result = JSON.parse(resultStr.toString())
     if (result.Stacks.length === 0) {
       throw new Error('Stack not found')
@@ -52,7 +58,10 @@ export class Cloudformation {
       }
 
       shell(command.join(' '))
-      shell(`aws cloudformation wait stack-update-complete --region ${options.region} --stack-name ${options.stackName}`)
+      const result = shell(`aws cloudformation wait stack-update-complete --region ${options.region} --stack-name ${options.stackName}`, { stdio: 'pipe' }).toString().trim()
+      if (result !== '') {
+        throw new Error(result)
+      }
       return true
     } catch (error) {
       return false      
@@ -79,10 +88,20 @@ export class Cloudformation {
       }
 
       shell(command.join(' '))
-      shell(`aws cloudformation wait stack-create-complete --region ${options.region} --stack-name ${options.stackName}`)
+      const result = shell(`aws cloudformation wait stack-create-complete --region ${options.region} --stack-name ${options.stackName}`, { stdio: 'pipe' }).toString().trim()
+      if (result !== '') {
+        throw new Error(result)
+      }
       return true
     } catch (error) {
       return false      
     }
+  }
+
+  static waitForRollback(
+    /**@type {string}*/ stackName,
+    /**@type {string}*/ region,
+  ) {
+    shell(`aws cloudformation wait stack-rollback-complete --region ${region} --stack-name ${stackName}`)
   }
 }

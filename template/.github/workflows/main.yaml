@@ -1,0 +1,38 @@
+name: Main
+
+on:
+  push:
+    branches: 
+    - 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install AWS CLI
+      run: |
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
+        unzip -qq awscliv2.zip
+        sudo ./aws/install --update
+
+    - name: Install Go
+      run: |
+        wget -q https://go.dev/dl/go1.19.4.linux-amd64.tar.gz
+        sudo rm -rf /usr/local/go 
+        sudo tar -C /usr/local -xzf go1.19.4.linux-amd64.tar.gz
+        export PATH=$PATH:/usr/local/go/bin
+
+    - name: build and release
+      run: |
+        set -e
+        node ./.github/scripts/cmd/deploy.mjs
+      env:
+        CI: true
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
+        AWS_DEFAULT_OUTPUT: json
+        AWS_EC2_METADATA_DISABLED: true

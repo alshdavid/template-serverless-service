@@ -6,8 +6,14 @@ Parameters:
     Type: String
   ParamProjectPrefix:
     Type: String
+    MinLength: 3
+    MaxLength: 63
+    AllowedPattern: ^[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?$
   ParamProjectName:
     Type: String
+    MinLength: 3
+    MaxLength: 63
+    AllowedPattern: ^[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?$
 
 Resources:
   ApiGateway:
@@ -107,11 +113,98 @@ Resources:
       PolicyDocument:
         Statement:
           - Effect: Allow
-            Principal: '*'
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
             Action:
               - s3:GetObject
             Resource: !Sub 'arn:aws:s3:::${S3BucketWebAssets}/*'
       Bucket: !Ref S3BucketWebAssets
+
+  CloudfrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        HttpVersion: http2
+        DefaultCacheBehavior:
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+          TargetOriginId: Web
+          ViewerProtocolPolicy: redirect-to-https
+        DefaultRootObject: index.html
+        CacheBehaviors:
+          - PathPattern: api/*
+            TargetOriginId: Api
+            Compress: false
+            ViewerProtocolPolicy: 'https-only'
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+            # AWS Default CachingDisabled Policy
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+        Origins:
+          - Id: Web
+            DomainName: !Sub '${ParamProjectPrefix}-${ParamProjectName}-web-assets.s3-${AWS::Region}.amazonaws.com'
+            S3OriginConfig:
+              OriginAccessIdentity:
+                !Join ['', ['origin-access-identity/cloudfront/', !Ref CloudFrontOriginAccessIdentity]]
+          - Id: Api
+            DomainName: !Sub ${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com
+            CustomOriginConfig:
+              OriginProtocolPolicy: 'https-only'
+
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: 'CloudFront OAI'
+
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub '${ParamProjectPrefix}-${ParamProjectName}-user-pool'
+      AliasAttributes: [email]
+      MfaConfiguration: 'OFF'
+      EmailConfiguration:
+        EmailSendingAccount: COGNITO_DEFAULT
+      UsernameConfiguration:
+        CaseSensitive: true
+      Policies:
+        PasswordPolicy: 
+          MinimumLength: 7
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+          RequireUppercase: false
+
+  CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Sub '${ParamProjectPrefix}-${ParamProjectName}'
+      UserPoolId: !Ref CognitoUserPool
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      AllowedOAuthFlowsUserPoolClient: true
+      GenerateSecret: true
+      CallbackURLs:
+        - http://localhost:3000/api/auth/login/callback
+      LogoutURLs:
+        - http://localhost:3000/api/auth/logout/callback
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - phone
+        - email
+        - openid
+        - profile
+      SupportedIdentityProviders:
+        - COGNITO
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
 
 Outputs:
   ApiGatewayUrl:
@@ -120,3 +213,5 @@ Outputs:
     Value: !Sub '${ParamProjectPrefix}-${ParamProjectName}-web-assets'
   S3WebsiteUrl:
     Value: !Sub 'https://${ParamProjectPrefix}-${ParamProjectName}-web-assets.s3.${AWS::Region}.amazonaws.com'
+  HostedUI:
+    Value: !Sub https://${ParamProjectPrefix}-${ParamProjectName}.auth.${AWS::Region}.amazoncognito.com/login?client_id=${CognitoUserPoolClient}&response_type=code&scope=email+openid+phone+profile&redirect_uri=http://localhost:3000

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -15,19 +13,11 @@ import (
 func main() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
-		b, _ := json.Marshal(r.URL)
-		fmt.Println("test")
-		fmt.Println(r.Host)
-		fmt.Println(string(b))
+	r.HandleFunc("/api/test", func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, "Hello Test!")
 	})
 
-	r.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b, _ := json.Marshal(r.URL)
-		fmt.Println("fallback")
-		fmt.Println(r.Host)
-		fmt.Println(string(b))
+	r.PathPrefix("/api").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, "Catch all")
 	})
 
