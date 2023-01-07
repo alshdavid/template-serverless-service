@@ -100,7 +100,7 @@ cd "$PWD/$FOLDER_NAME"
 
 for i in `find * .*` ; do
 echo $i
-  sed -i -- "s/alshdavid/${PROJECT_PREFIX}/g" $i; 
-  sed -i -- "s/template/${PROJECT_NAME}/g" $i; 
-  sed -i -- "s/ap-southeast-2/${AWS_REGION}/g" $i; 
+  sed -i -- "s/%%PROJECT_PREFIX%%/${PROJECT_PREFIX}/g" $i; 
+  sed -i -- "s/%%PROJECT_NAME%%/${PROJECT_NAME}/g" $i; 
+  sed -i -- "s/%%AWS_REGION%%/${AWS_REGION}/g" $i; 
 done
