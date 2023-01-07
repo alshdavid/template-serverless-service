@@ -14,7 +14,7 @@ This will clone the latest template and insert your values.
 _Note: You will need to create a GitHub repository and add your AWS credentials to the Secrets._
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/alshdavid/template-serverless-service/main/setup.bash)
+bash <(curl -s https://alshdavid.github.io/template-serverless-service/setup.bash)
 ```
 
 ## Architecture
