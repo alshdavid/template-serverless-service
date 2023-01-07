@@ -2,8 +2,6 @@
 
 DEFAULT_PREFIX=$(echo $RANDOM | md5sum | head -c 7; echo;)
 
-clear
-
 echo "Magic Serverless Project Setup Script"
 echo
 echo "This service will setup a serverless project in your AWS account using cloudformation"
@@ -55,3 +53,16 @@ read -p "  Enter Deployment Region: " AWS_REGION
 
 echo
 
+# PROJECT_PREFIX=alshdavid
+# PROJECT_NAME=template
+# AWS_REGION=ap-southeast-2
+
+mkdir $PROJECT_PREFIX-$PROJECT_NAME
+wget -qO- https://github.com/alshdavid/template-serverless-service/releases/latest/download/template.tar.gz | tar -xzv -C "$PWD/$PROJECT_PREFIX-$PROJECT_NAME" 
+
+for i in `find * .*` ; do
+echo $i
+  sed -i -- "s/alshdavid/${PROJECT_PREFIX}/g" $i; 
+  sed -i -- "s/template/${PROJECT_NAME}/g" $i; 
+  sed -i -- "s/ap-southeast-2/${AWS_REGION}/g" $i; 
+done

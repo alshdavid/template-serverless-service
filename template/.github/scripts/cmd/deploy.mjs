@@ -15,7 +15,9 @@ const {
 const TEMP_BUCKET_NAME = `0000-temp-${PROJECT_PREFIX}-${PROJECT_NAME}-${crypto.randomUUID().substring(0,8)}`
 const STACK_NAME = `${PROJECT_PREFIX}-${PROJECT_NAME}`
 
-await import('./build.mjs')
+shell('make', { 
+  cwd: Directories.root.path,
+})
 
 shell('zip lambda.zip ./main', { 
   cwd: Directories.root.packages.httpd.Dist.path,

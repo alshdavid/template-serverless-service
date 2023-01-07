@@ -1,2 +1,3 @@
 build:
-	node ./.github/scripts/cmd/build.mjs
+	cd packages/httpd && make
+	cd packages/web && make

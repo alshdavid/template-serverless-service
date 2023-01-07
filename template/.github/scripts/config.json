@@ -1,0 +1,5 @@
+{
+    "PROJECT_PREFIX": "%%PROJECT_PREFIX%%",
+    "PROJECT_NAME": "%%PROJECT_NAME%%",
+    "AWS_REGION": "%%AWS_REGION%%"
+}
