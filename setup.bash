@@ -89,6 +89,10 @@ if [ "$PROCEED" = 'n' ]; then
   exit 0
 fi
 
+# PROJECT_PREFIX=alshdavid
+# PROJECT_NAME=template
+# AWS_REGION=ap-southeast-2
+
 mkdir $FOLDER_NAME
 wget -qO- https://github.com/alshdavid/template-serverless-service/releases/latest/download/template.tar.gz | tar -xzv -C "$PWD/$FOLDER_NAME" 
 
