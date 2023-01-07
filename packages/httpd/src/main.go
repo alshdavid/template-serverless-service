@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
+	"github.com/awslabs/aws-lambda-go-api-proxy/gorillamux"
 	"github.com/gorilla/mux"
 )
 
@@ -34,6 +34,7 @@ func main() {
 	if os.Getenv("HTTPD") == "true" {
 		http.ListenAndServe("0.0.0.0:3000", r)
 	} else {
-		lambda.Start(httpadapter.New(r).Proxy)
+		adapter := gorillamux.NewV2(r)
+		lambda.Start(adapter.ProxyWithContext)
 	}
 }
