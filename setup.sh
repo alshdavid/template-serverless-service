@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DEFAULT_PREFIX=$(echo $RANDOM | md5sum | head -c 7; echo;)
+DEFAULT_AWS_REGION=$(aws configure get region)
 
 echo "Magic Serverless Project Setup Script"
 echo
@@ -48,17 +49,48 @@ echo "AWS Region:"
 echo "  This is the deployment region for AWS. By default this will use the"
 echo "  default region specified in your CLI config"
 echo
-echo "  Default: $(aws configure get region)"
+echo "  Default: $DEFAULT_AWS_REGION"
 read -p "  Enter Deployment Region: " AWS_REGION
+echo
+if [ "$AWS_REGION" = "" ]; then
+  AWS_REGION=$DEFAULT_AWS_REGION
+fi
 
 echo
+echo "Custom Domain: (TODO)"
+echo "  You can optionally add a custom domain. this will add a seperate CloudFormation"
+echo "  stack dedicated to the domain and its SSL certificate. This will likely require"
+echo "  additional verification steps for the SSL certificate to be created"
+echo
+echo "  e.g. example.com"
+read -p "  Enter Domain Name: " DOMAIN_NAME
+if ! [ "$DOMAIN_NAME" = "" ]; then
+  read -p "  Enter Domain Name Auth (auth.$DOMAIN_NAME): " DOMAIN_NAME_AUTH
+  if [ "$DOMAIN_NAME_AUTH" = "" ]; then
+    DOMAIN_NAME_AUTH="auth.$DOMAIN_NAME"
+  fi
+fi
+echo
 
-# PROJECT_PREFIX=alshdavid
-# PROJECT_NAME=template
-# AWS_REGION=ap-southeast-2
+FOLDER_NAME=$PROJECT_PREFIX-$PROJECT_NAME
 
-mkdir $PROJECT_PREFIX-$PROJECT_NAME
-wget -qO- https://github.com/alshdavid/template-serverless-service/releases/latest/download/template.tar.gz | tar -xzv -C "$PWD/$PROJECT_PREFIX-$PROJECT_NAME" 
+echo "Review:"
+echo PROJECT_PREFIX:   $PROJECT_PREFIX
+echo PROJECT_NAME:     $PROJECT_NAME
+echo AWS_REGION:       $AWS_REGION
+echo DOMAIN_NAME:      $DOMAIN_NAME
+echo DOMAIN_NAME_AUTH: $DOMAIN_NAME_AUTH
+echo Folder Name:      $FOLDER_NAME
+echo
+
+read -p "Proceed (Y/n): " PROCEED
+if [ "$PROCEED" = 'n' ]; then
+  echo "Cancelled"
+  exit 0
+fi
+
+mkdir $FOLDER_NAME
+wget -qO- https://github.com/alshdavid/template-serverless-service/releases/latest/download/template.tar.gz | tar -xzv -C "$PWD/$FOLDER_NAME" 
 
 for i in `find * .*` ; do
 echo $i

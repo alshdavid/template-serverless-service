@@ -2,10 +2,10 @@
 
 This will create a serverless AWS stack that has:
  
- - A frontend (Minimal, with Auth)
- - A backend (Go, with Auth)
- - Authentication (OAuth2)
- - A relational database (Postgres)
+- A frontend (Minimal, with Auth)
+- A backend (Go, with Auth)
+- Authentication (OAuth2)
+- A relational database (Postgres)
 
 ### Automated Setup Script:
 
@@ -20,3 +20,4 @@ bash <(curl -s https://raw.githubusercontent.com/alshdavid/template-serverless-s
 ## Architecture
 
 ![./.github/assets/diagram.jpg](./.github/assets/diagram.jpg)
+ 
